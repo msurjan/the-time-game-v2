@@ -10,11 +10,11 @@ const INITIAL_STATE = {
   xp: 0,
   gold: 0,
   isAdmin: false,
-  unlockedIslands: ['island_01', 'island_06'],
-  unlockedNodes: ['n01_t0_1', 'n06_t0_1'],
+  unlockedIslands: ['island_01'],
+  unlockedNodes: ['n01_t0_1'],
   completedNodes: [],
   activeDebuff: null,
-  skills: { geology: 0, tectonics: 0, biology: 0, history: 0, society: 0 }
+  skills: { biology: 0, geology: 0, history: 0, society: 0, tectonics: 0 }
 }
 
 export const ACTIONS = {
@@ -70,11 +70,12 @@ export function GameProvider({ children }) {
           type: ACTIONS.LOAD_PERSISTED_STATE,
           payload: {
             isAdmin,
-            xp: Number(data.xp) || 0,
-            gold: Number(data.gold) || 0,
-            lives: Number(data.lives) || LIVES.initial,
+            xp: data.xp || 0,
+            gold: data.gold || 0,
+            lives: data.lives || 5,
             skills: data.skills || INITIAL_STATE.skills,
             completedNodes: data.completed_nodes || [],
+            unlockedIslands: data.unlocked_islands || ['island_01']
           }
         });
       }
@@ -85,12 +86,15 @@ export function GameProvider({ children }) {
   useEffect(() => {
     const save = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
+      if (session?.user && (state.completedNodes.length > 0 || state.xp > 0)) {
         await supabase.from('profiles').upsert({
           id: session.user.id,
-          xp: state.xp, gold: state.gold, lives: state.lives,
-          skills: state.skills, completed_nodes: state.completedNodes,
-          updated_at: new Date().toISOString()
+          xp: state.xp,
+          gold: state.gold,
+          lives: state.lives,
+          skills: state.skills,
+          completed_nodes: state.completedNodes,
+          unlocked_islands: state.unlockedIslands
         })
       }
     }
@@ -100,19 +104,6 @@ export function GameProvider({ children }) {
   return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>
 }
 
-// ── ESTOS SON LOS QUE FALTABAN ──
-export const useGame = () => {
-  const ctx = useContext(GameContext)
-  if (!ctx) throw new Error('useGame must be used inside <GameProvider>')
-  return ctx
-}
-
-export const isNodeUnlocked = (state, id) => {
-  // Si eres admin, todo está desbloqueado para probar
-  if (state.isAdmin) return true;
-  return state.unlockedNodes?.includes(id) || false;
-}
-
-export const isNodeCompleted = (state, id) => {
-  return state.completedNodes?.includes(id) || false;
-}
+export const useGame = () => useContext(GameContext)
+export const isNodeUnlocked = (state, id) => state.isAdmin || state.unlockedNodes?.includes(id)
+export const isNodeCompleted = (state, id) => state.completedNodes?.includes(id)
