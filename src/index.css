@@ -1,0 +1,37 @@
+/* Global reset only — all component styling uses inline React style objects */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  background: #0a0a0f;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── Keyframe animations (referenced by inline style's animationName) ── */
+
+@keyframes avatarPulse {
+  0%   { box-shadow: 0 0 12px 4px rgba(245, 166, 35, 0.7); }
+  50%  { box-shadow: 0 0 28px 10px rgba(245, 166, 35, 0.2); }
+  100% { box-shadow: 0 0 12px 4px rgba(245, 166, 35, 0.7); }
+}
+
+@keyframes islandGlow {
+  0%   { box-shadow: 0 0 16px 2px rgba(245, 166, 35, 0.35); }
+  50%  { box-shadow: 0 0 32px 8px rgba(245, 166, 35, 0.12); }
+  100% { box-shadow: 0 0 16px 2px rgba(245, 166, 35, 0.35); }
+}
+
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
